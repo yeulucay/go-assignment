@@ -1,12 +1,10 @@
 package model
 
-import "time"
-
 type RecordModel struct {
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
-	MinCount  int       `json:"minCount"`
-	MaxCount  int       `json:"maxCount"`
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+	MinCount  int    `json:"minCount"`
+	MaxCount  int    `json:"maxCount"`
 }
 
 type RecordResult struct {

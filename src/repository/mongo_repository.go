@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,11 +40,27 @@ func (r *mongoRepository) ListRecords(
 		return nil, err
 	}
 
-	var resultList []model.RecordResult
+	var results []bson.M
 
-	if err = cursor.All(context.TODO(), &resultList); err != nil {
+	if err = cursor.All(context.TODO(), &results); err != nil {
 		return nil, err
 	}
 
+	var resultList []model.RecordResult
+
+	for _, result := range results {
+		resultList = append(resultList, r.parseRecord(result))
+	}
+
 	return resultList, nil
+}
+
+// Parse mongo bson object into model.RecordResult
+func (r *mongoRepository) parseRecord(m primitive.M) model.RecordResult {
+	ts := m["createdAt"].(primitive.DateTime)
+
+	return model.RecordResult{
+		Key:       m["key"].(string),
+		CreatedAt: ts.Time().Format(time.DateOnly),
+	}
 }

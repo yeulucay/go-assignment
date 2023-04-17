@@ -7,6 +7,9 @@ import (
 )
 
 type RecordService interface {
+
+	// All the business logic of "records" is
+	// supposed to be within this function
 	ListRecordsByFilter(filter model.RecordModel) ([]model.RecordResult, error)
 }
 
@@ -15,14 +18,12 @@ type recordService struct {
 	repository.MongoRepository
 }
 
-func NewPackageService(mongoRepo repository.MongoRepository) RecordService {
+func NewRecordService(mongoRepo repository.MongoRepository) RecordService {
 	return &recordService{
 		MongoRepository: mongoRepo,
 	}
 }
 
-// All the business logic of "records" is
-// supposed to be within this function
 func (svc *recordService) ListRecordsByFilter(filter model.RecordModel) ([]model.RecordResult, error) {
 
 	if filter.EndDate.Before(filter.StartDate) {

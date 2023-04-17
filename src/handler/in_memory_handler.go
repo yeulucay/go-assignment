@@ -28,15 +28,18 @@ func NewInMemoryHandler(svc service.InMemoryService) InMemoryHandler {
 // In-memory storage put key-value endpoint.
 // Returns httpStatus and upserted key-value pair.
 func (h *inMemoryHandler) Post(req *http.Request) (int, interface{}) {
+
 	payload, err := io.ReadAll(req.Body)
 	if err != nil {
-		return common.GetErrorResponse(err)
+		errResp := common.GetErrorResponse(err)
+		return errResp.Code, errResp
 	}
 
 	pair := model.Pair{}
 
 	if err := json.Unmarshal(payload, &pair); err != nil {
-		return common.GetErrorResponse(err)
+		errResp := common.GetErrorResponse(err)
+		return errResp.Code, errResp
 	}
 
 	h.svc.PutKeyValue(pair)
@@ -51,12 +54,14 @@ func (h *inMemoryHandler) Get(req *http.Request) (int, interface{}) {
 
 	key := req.URL.Query().Get("key")
 	if len(key) == 0 {
-		return common.GetErrorResponse(common.ErrorInternalServer)
+		errResp := common.GetErrorResponse(common.ErrorInternalServer)
+		return errResp.Code, errResp
 	}
 
 	result, err := h.svc.GeyValue(key)
 	if err != nil {
-		return common.GetErrorResponse(err)
+		errResp := common.GetErrorResponse(err)
+		return errResp.Code, errResp
 	}
 
 	return 200, result

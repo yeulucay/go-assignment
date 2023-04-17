@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+	"getir-assignment/src/model"
 )
 
 var (
@@ -15,14 +16,14 @@ type ErrorResponse struct {
 	Msg  string `json:"error"`
 }
 
-func GetErrorResponse(err error) ErrorResponse {
+func GetErrorResponse(err error) model.ResponseModel {
 	if errors.Is(err, ErrorBadRequest) {
-		return ErrorResponse{Code: 400, Msg: err.Error()}
+		return model.ResponseModel{Code: 400, Msg: err.Error()}
 	} else if errors.Is(err, ErrorNotFound) {
-		return ErrorResponse{Code: 404, Msg: err.Error()}
+		return model.ResponseModel{Code: 404, Msg: err.Error()}
 	} else if errors.Is(err, ErrorInternalServer) {
-		return ErrorResponse{Code: 500, Msg: err.Error()}
+		return model.ResponseModel{Code: 500, Msg: err.Error()}
 	}
 
-	return ErrorResponse{Code: 500, Msg: ErrorInternalServer.Error()}
+	return model.ResponseModel{Code: 500, Msg: ErrorInternalServer.Error()}
 }

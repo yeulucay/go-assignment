@@ -11,17 +11,18 @@ var (
 )
 
 type ErrorResponse struct {
-	Msg string `json:"error"`
+	Code int    `json:"code"`
+	Msg  string `json:"error"`
 }
 
-func GetErrorResponse(err error) (int, ErrorResponse) {
+func GetErrorResponse(err error) ErrorResponse {
 	if errors.Is(err, ErrorBadRequest) {
-		return 400, ErrorResponse{Msg: err.Error()}
+		return ErrorResponse{Code: 400, Msg: err.Error()}
 	} else if errors.Is(err, ErrorNotFound) {
-		return 404, ErrorResponse{Msg: err.Error()}
+		return ErrorResponse{Code: 404, Msg: err.Error()}
 	} else if errors.Is(err, ErrorInternalServer) {
-		return 500, ErrorResponse{Msg: err.Error()}
+		return ErrorResponse{Code: 500, Msg: err.Error()}
 	}
 
-	return 500, ErrorResponse{Msg: ErrorInternalServer.Error()}
+	return ErrorResponse{Code: 500, Msg: ErrorInternalServer.Error()}
 }

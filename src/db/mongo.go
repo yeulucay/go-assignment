@@ -8,6 +8,8 @@ import (
 )
 
 func InitializeMongo() *mongo.Client {
+
+	// could've been brought from .env
 	client, err := mongo.Connect(
 		context.TODO(),
 		options.Client().ApplyURI("mongodb+srv://challengeUser:WUMglwNBaydH8Yvu@challenge-xzwqd.mongodb.net/"))

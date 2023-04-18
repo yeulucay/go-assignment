@@ -10,5 +10,5 @@ type RecordModel struct {
 type RecordResult struct {
 	Key        string `json:"key"`
 	CreatedAt  string `json:"createdAt"`
-	TotalCount int    `json:"totalCount"`
+	TotalCount int64  `json:"totalCount"`
 }

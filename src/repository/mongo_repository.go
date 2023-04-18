@@ -14,6 +14,8 @@ type MongoRepository interface {
 	ListRecords(startDate time.Time, endDate time.Time, minCount int, maxCount int) ([]model.RecordResult, error)
 }
 
+// Mongo Db repository
+// that all the database logic exists
 type mongoRepository struct {
 	client *mongo.Client
 }
@@ -24,6 +26,13 @@ func NewMongoRepository(client *mongo.Client) MongoRepository {
 	}
 }
 
+// List records due to parameters
+//
+// Parameters
+// startDate: start date of time span
+// endDate: end date of time span
+// minCount: minimun value of the aggregated counts in db
+// maxCount: maximum value of the aggregated counts in db
 func (r *mongoRepository) ListRecords(
 	startDate time.Time,
 	endDate time.Time,
@@ -32,9 +41,18 @@ func (r *mongoRepository) ListRecords(
 
 	recordCollection := r.client.Database("getircase-study").Collection("records")
 
-	filter := bson.D{}
+	sumStage := bson.D{{"$addFields", bson.D{{"sum", bson.D{{"$sum", "$counts"}}}}}}
+	countGtStage := bson.D{{"$match", bson.D{{"sum", bson.D{{"$gte", minCount}}}}}}
+	countLtStage := bson.D{{"$match", bson.D{{"sum", bson.D{{"$lte", maxCount}}}}}}
+	dateGtStage := bson.D{{"$match", bson.D{{"createdAt", bson.D{{"$gte", primitive.NewDateTimeFromTime(startDate)}}}}}}
+	dateLtStage := bson.D{{"$match", bson.D{{"createdAt", bson.D{{"$lte", primitive.NewDateTimeFromTime(endDate)}}}}}}
 
-	cursor, err := recordCollection.Find(context.TODO(), filter)
+	// filter := bson.D{}
+
+	cursor, err := recordCollection.Aggregate(context.TODO(),
+		mongo.Pipeline{sumStage, countGtStage, countLtStage, dateGtStage, dateLtStage})
+
+	// cursor, err := recordCollection.Find(context.TODO(), filter)
 
 	if err != nil {
 		return nil, err
@@ -60,7 +78,8 @@ func (r *mongoRepository) parseRecord(m primitive.M) model.RecordResult {
 	ts := m["createdAt"].(primitive.DateTime)
 
 	return model.RecordResult{
-		Key:       m["key"].(string),
-		CreatedAt: ts.Time().Format(time.DateOnly),
+		Key:        m["key"].(string),
+		CreatedAt:  ts.Time().Format(time.DateOnly),
+		TotalCount: m["sum"].(int64),
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"getir-assignment/src/di"
 	"getir-assignment/src/route"
 	"net/http"
+	"os"
 )
 
 type application struct {
@@ -24,5 +25,11 @@ func (a *application) Start() {
 	router := route.ApiRoute(a.context)
 
 	fmt.Println("server is running")
-	panic(http.ListenAndServe(":8000", router))
+
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8000"
+	}
+
+	panic(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
 }
